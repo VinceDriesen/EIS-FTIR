@@ -17,7 +17,6 @@ def main():
         if not ret:
             break
 
-        # -- crop --
         h, w = frame.shape[:2]
         frame = frame[int(0.2*h):int(0.9*h), int(0*w):int(1*w)]
 
@@ -28,30 +27,24 @@ def main():
 
         opened = cv2.morphologyEx(bw, cv2.MORPH_OPEN, kernel)
 
-            # 2) Contours zoeken
         contours, _ = cv2.findContours(opened, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # 3) Alles tekenen op originele frame
         for c in contours:
             area = cv2.contourArea(c)
             if area < 50:
-                continue  # kleine ruis negeren
+                continue
 
-            # Contour tekenen
             cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)
 
-            # fitEllipse vereist minstens 5 punten
             if len(c) >= 5:
                 ellipse = cv2.fitEllipse(c)
                 center = (int(ellipse[0][0]), int(ellipse[0][1]))
                 cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-                # (x,y) ernaast zetten
                 text = f"{center[0]}, {center[1]}"
                 cv2.putText(frame, text, (center[0] + 10, center[1]),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
 
-        # Windows tonen
         cv2.imshow("Gray", gray)
         cv2.imshow("Threshold", bw)
         cv2.imshow("Opened", opened)
